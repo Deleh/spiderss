@@ -21,7 +21,7 @@ And of course because plaintext is God.
 
 ### NixOS
 
-Just call `nix-shell` in the project directory. This will drop you into a python environment with the requirements fulfilled
+Just call `nix-shell` in the project directory. This will drop you into a python environment with all requirements fulfilled
 
 ### Legacy OS
 
@@ -82,10 +82,10 @@ You can append the feeds to your config e.g. the following way:
 
 Just create a cron job or a systemd.service, which calls the script every now and then. 
 
-## How can I read the articles?
+## How to read articles
 
 Use your favourite Markdown viewer, or just the console.
-__spiderss__ integrates nice with the [ranger](https://github.com/ranger/ranger) filemanager, because the categories are folders.
+__spiderss__ integrates nice with the [ranger](https://github.com/ranger/ranger) filemanager which eases navigating through complex folder structures.
 
 ## The folder structure
 
@@ -115,3 +115,6 @@ You can do this easily e.g. by setting a keybinding in ranger.
 A special folder, called __loved__, is created on startup in the base_directory.
 It is intended for articles, you want to keep.
 Articles inside are never deleted, even if they expire the max_age.
+
+Articles are stored in files with the name `YYYYMMDDHHmm_article_name.md`.
+Thus articles are sorted by publishing date automatically.
