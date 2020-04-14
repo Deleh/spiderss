@@ -61,7 +61,7 @@ Edit it to your liking before calling the script.
 # This defines the base directory for the feeds. Please use an absolute path.
 base_directory = '/home/<user>/rss'
 
-# Articles older than max_age will be deleted and not be added
+# Articles older than max_age (days) will be deleted and not be added
 max_age = 30
 
 # Feeds
