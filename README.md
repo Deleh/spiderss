@@ -9,7 +9,7 @@ Read the news you want, the way you want it.
 Without advertisements, clickbait and trackers.
 Drop unresponsive web interfaces and stop accepting cookies, because plaintext is God.
 
-Articles are parsed as Markdown files from the original article web page and stored on the filesystem.
+Articles are scraped as Markdown files from the original article web page and stored in a special folder structure.
 
 __Note:__ This script is under development and far from being complete.
 Until now it works for the most feeds I read.
