@@ -1,17 +1,20 @@
-# This defines the base directory for the feeds relative to this config file
-base_directory = '~/spiderss'
+# This defines the base directory for the feeds. Please use an absolute path.
+base_directory = '/home/<user>/rss'
 
 # Articles older than max_age will be deleted and not be added
 max_age = 30
 
-# Feeds - the category can be empty ('')
+# Feeds
+# The category can be empty (''). The feed fill then be stored in the base_directory.
+# The category can also be a path, which will result in subdirectories (e.g. 'technology/hardware').
+# The name can also be empty (''). feeds with the same category will then be stored in the same directory.
 
 [[feed]]
 category = 'News'
-name = 'Tagesschau'
-url = 'https://www.tagesschau.de/xml/rss2'
+name = 'Newssite'
+url = 'https://example.org/feed'
 
 [[feed]]
 category = 'News'
-name = 'Vice'
-url = 'https://www.vice.com/de/rss'
+name = 'Newssite 2'
+url = 'https://example.org/feed'
