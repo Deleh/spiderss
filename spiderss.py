@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 
-import feedparser
-from readability import Document
-import requests
-import html2text
-import re
-import os
-import time
-from time import mktime
-from datetime import datetime, timedelta
-import toml
 import argparse
+import feedparser
+import html2text
+import os
+import re
+import requests
 import sys
+import time
+import toml
+from datetime import datetime, timedelta
+from readability import Document
+from time import mktime
 
 '''
 Static variables
