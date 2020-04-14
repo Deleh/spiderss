@@ -2,22 +2,26 @@
 
 ![spiderss logo](images/logo.png)
 
-__spiderss__ is a plaintext RSS crawler, based on [feedparser](https://github.com/kurtmckee/feedparser), [python-readability](https://github.com/buriy/python-readability) and [html2text](https://github.com/Alir3z4/html2text)
+__spiderss__ is a plaintext RSS crawler, based on [feedparser](https://github.com/kurtmckee/feedparser), [python-readability](https://github.com/buriy/python-readability) and [html2text](https://github.com/Alir3z4/html2text).
 Articles are parsed as Markdown files from the original article web page and stored on the filesystem.
+
+Read the news you want, the way you want it.
+Without advertisements, clickbait and trackers.
+And of course because plaintext is God.
 
 ## Features
 
-- Categories
+- Store articles in categories
 - Delete articles after a few days
-- Distinguish _new_ from _read_ articles
-- Store _loved_ articles forever
+- Distinguish __new__ from __read__ articles
+- Store __loved__ articles forever
 - OPML import
 
 ## Installation
 
 ### NixOS
 
-Just call `nix-shell` in the project directory.
+Just call `nix-shell` in the project directory. This will drop you into a python environment with the requirements fulfilled
 
 ### Legacy OS
 
@@ -38,29 +42,53 @@ optional arguments:
 
 ### Config
 
-The config file is written in TOML and has the following variables:
+The config file is written in TOML.
+Edit it to your liking before calling the script.
 
-__base_dir__: The base directory where your articles are stored.
+```
+# This defines the base directory for the feeds. Please use an absolute path.
+base_directory = '/home/<user>/rss'
 
-__max_age__: The amount of days, your articles are kept on the filesystem. Articles in the __loved__ folder are skipped.
+# Articles older than max_age will be deleted and not be added
+max_age = 30
 
-__[[feed]]__: Is a feed element. It has the following attributes:\
-__category__: Category of the feed.\
-__name__: Name of the feed.\
-__url__: URL of the feed.
+# Feeds
+# The category can be empty (''). The feed fill then be stored in the base_directory.
+# The category can also be a path, which will result in subdirectories (e.g. 'technology/hardware').
+# The name can also be empty (''). feeds with the same category will then be stored in the same directory.
 
-## Why?
+[[feed]]
+category = 'News'
+name = 'Newssite'
+url = 'https://example.org/feed'
 
-Because plaintext is God.
+[[feed]]
+category = 'News'
+name = 'Newssite 2'
+url = 'https://example.org/feed'
+```
+
+### OPML import
+
+Use the `opml2spiderss.py` script in the `script/` folder.
+It prints the TOML format of the feeds to stdout.
+You can append the feeds to your config e.g. the following way:
+
+```
+./opml2spiderss.py <your_feeds>.opml >> <your_config>.toml
+```
+
+### Keep articles up to date
+
+Just create a cron job or a systemd.service, which calls the script every now and then. 
 
 ## How can I read the articles?
 
 Use your favourite Markdown viewer, or just the console.
-__spiderss__ integrates nice with the [ranger](https://github.com/ranger/ranger) filemanager to browse categories.
+__spiderss__ integrates nice with the [ranger](https://github.com/ranger/ranger) filemanager, because the categories are folders.
 
-## How does it work?
+## The folder structure
 
-Edit the `config.toml` file to your liking and run the script.
 The script creates a folder structure the following way:
 
 ```
