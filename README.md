@@ -33,12 +33,13 @@ base_directory
         | - new
         | - read
 | - loved
+```
 
-Every feed gets a `new` and a `read` subfolder.
-Article files are stored in the `new` folder.
-Move them to the `read` folder if you're done reading them.
+Every feed gets a __new__ and a __read__ subfolder.
+Article files are stored in the __new__ folder.
+Move them to the __read__ folder if you're done reading them.
 You can do this easily e.g. by setting a keybinding in ranger.
 
-A special folder, called `loved`, is created on startup.
+A special folder, called __loved__, is created on startup in the base_directory.
 It is intended for articles, you want to keep.
-Articles inside are never deleted, even if they expire the _max_age_.
+Articles inside are never deleted, even if they expire the max_age.
