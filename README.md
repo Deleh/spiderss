@@ -134,3 +134,9 @@ Thus articles are sorted by publishing date automatically.
 ## Read articles on multiple devices
 
 Just synchronize the base_dir with [Syncthing](https://syncthing.net/) or put it in your [Nextcloud](https://nextcloud.com/)
+
+## Acknowledgements
+
+Thanks to all the people which created the nice libraries, this project in based on.
+And also thanks to Dieter Steffmann who created the Canterbury font, which is used for the logo.
+You can find it in the `fonts/` directory.
