@@ -11,15 +11,38 @@ from config import base_directory, update_interval, max_age, verbose, feeds
 import logging
 import sys, getopt
 
+
+'''
+Output functions
+'''
+
 def log(text):
     if verbose:
         #logging.info(text)
         print('{} - {}'.format(datetime.now().strftime('%d.%m %H:%M'), text))
 
+
 def error(text):
     #logging.error(text)
     print('{} - ERROR: {}'.format(datetime.now().strftime('%d.%m %H:%M'), text))
 
+
+def print_logo():
+    logo = '''
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+###### ###### ## #####  ###### ###### ###### ###### ######
+##     ##  ## ## ##  ## ##     ##  ## ##  ## ##     ##
+###### ###### ## ##  ## #####  ###### ###### ###### ######
+    ## ##     ## ##  ## ##     ## ##  ## ##      ##     ##
+###### ##     ## #####  ###### ##  ## ##  ## ###### ######
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    '''
+
+    print(logo)
+
+'''
+Utility functions
+'''
 
 # Get content of a webpage
 def get_html_content(url):
@@ -124,15 +147,18 @@ def get_help_message():
 
 def main(argv):
 
-    # Get arguments
-    try:
-        opts, args = getopt,getopt(argv, 'h', ['ifile=', 'ofile='])
-    except:
-        print('spiderrss.py [ run | create_config <file> ]')
+    print_logo()
 
-    for opt, arg in opts:
-        if opt == '-h'
+    ## Get arguments
+    #try:
+    #    opts, args = getopt,getopt(argv, 'h', ['ifile=', 'ofile='])
+    #except:
+    #    print('spiderrss.py [ run | create_config <file> ]')
 
+    #for opt, arg in opts:
+    #    if opt == '-h':
+    #        print('spiderrss.py [ run | create_config <file> ]')
+        
 
     #initialize()
     #crawl()
