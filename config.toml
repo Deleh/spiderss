@@ -1,0 +1,17 @@
+# This defines the base directory for the feeds relative to this config file
+base_directory = '~/spiderss'
+
+# Articles older than max_age will be deleted and not be added
+max_age = 30
+
+# Feeds - the category can be empty ('')
+
+[[feed]]
+category = 'News'
+name = 'Tagesschau'
+url = 'https://www.tagesschau.de/xml/rss2'
+
+[[feed]]
+category = 'News'
+name = 'Vice'
+url = 'https://www.vice.com/de/rss'
