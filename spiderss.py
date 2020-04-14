@@ -31,8 +31,7 @@ def log(text, force = False):
 
 # Print error message and exit
 def error(text):
-    print('{} - ERROR - {}'.format(datetime.now().strftime('%d.%m %H:%M'), text))
-    sys.exit(1)
+    print('{} E {}'.format(datetime.now().strftime('%d.%m %H:%M'), text))
 
 
 # Print spiderss logo
@@ -118,13 +117,16 @@ def update_feed(feed):
     articles = get_articles(feed['url'])
     threshold_date = datetime.now() - timedelta(days = max_age)
     for a in articles:
-        date = datetime.fromtimestamp(mktime(a.published_parsed))
-        if date > threshold_date:
-            filename = get_filename(date, a.title)
-            if not os.path.exists(os.path.join(feedpath_new, filename)) and not os.path.exists(os.path.join(feedpath_read, filename)):
-               text = get_article_text(a)
-               write_to_file(os.path.join(feedpath_new, filename), text)
-               log('    added article "{}"'.format(a.title))
+        try:
+            date = datetime.fromtimestamp(mktime(a.published_parsed))
+            if date > threshold_date:
+                filename = get_filename(date, a.title)
+                if not os.path.exists(os.path.join(feedpath_new, filename)) and not os.path.exists(os.path.join(feedpath_read, filename)):
+                    text = get_article_text(a)
+                    write_to_file(os.path.join(feedpath_new, filename), text)
+                    log('    added article "{}"'.format(a.title))
+         except Exception as e:
+             error('    while parsing article "{}: {}"'.format(a.title, e))
 
 
 # Delete articles older than max_age
@@ -157,6 +159,7 @@ def load_config(filepath):
         feeds = config['feed']
     except Exception as e:
         error('while parsing config: {}'.format(e))
+        sys.exit(1)
 
 
 # Initialize spiderss
