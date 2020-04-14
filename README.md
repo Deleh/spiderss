@@ -35,6 +35,10 @@ Call `nix-shell` in the project directory. This will drop you into a python envi
 
 Install the requirements with `pip install -r requirements.txt`.
 
+### Android
+
+Use [Nix-on-Droid](https://github.com/t184256/nix-on-droid) and call `nix-shell`.
+
 ## Usage
 
 ```
@@ -126,3 +130,7 @@ Articles inside are never deleted, even if they expire the max_age.
 
 Articles are stored in files with the name `YYYYMMDDHHmm_article_name.md`.
 Thus articles are sorted by publishing date automatically.
+
+## Read articles on multiple devices
+
+Just synchronize the base_dir with [Syncthing](https://syncthing.net/) or put it in your [Nextcloud](https://nextcloud.com/)
