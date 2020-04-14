@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import feedparser
 from readability import Document
 import requests
@@ -62,12 +64,8 @@ def html_to_markdown(html):
 
 # Get articles of a feed 
 def get_articles(feed):
-    try:
-        feed = feedparser.parse(feed[2])
-        return feed.entries
-    except Exception as e:
-        error('failed to get feed "{}: {}"'.format(feed[1], e.msg))
-        return []
+    feed = feedparser.parse(feed[2])
+    return feed.entries
 
 
 def write_to_file(filename, text):
@@ -88,6 +86,13 @@ def get_filename(date, title):
     
     return '{}_{}.md'.format(date, title)
 
+
+# Get Markdown text from an article
+def get_article_text(article):
+    head = '# {}\n\n[Link]({})'.format(article.title, article.link)
+    body = html_to_markdown(get_html_content(article.link))
+    return '{}\n\n{}'.format(head, body)
+    
 
 # Update feed
 def update_feed(feed):
@@ -111,12 +116,14 @@ def update_feed(feed):
         if date > threshold_date:
             filename = get_filename(date, a.title)
             if not os.path.exists(os.path.join(feedpath_new, filename)) and not os.path.exists(os.path.join(feedpath_read, filename)):
-               text = html_to_markdown(get_html_content(a.link))
+               text = get_article_text(a)
                write_to_file(os.path.join(feedpath_new, filename), text)
 
 
 # Delete articles older than max_age
 def delete_old_articles():
+
+    log('removing old articles')
 
     threshold_date = datetime.now() - timedelta(days = max_age)
     for subdir, dirs, files in os.walk(base_directory):
@@ -127,7 +134,6 @@ def delete_old_articles():
                  date = datetime.strptime(file[:12], '%Y%m%d%H%M')
                  if threshold_date > date:
                      os.remove(os.path.join(subdir, file))
-    log('deleted old articles')
 
 
 def initialize():
@@ -142,6 +148,7 @@ def crawl():
 
     # Main loop
     while True:
+        log('starting crawl')
         for feed in feeds:
             update_feed(feed)
         delete_old_articles()
@@ -165,8 +172,8 @@ def main(argv):
     #        print('spiderrss.py [ run | create_config <file> ]')
         
 
-    #initialize()
-    #crawl()
+    initialize()
+    crawl()
 
 
 

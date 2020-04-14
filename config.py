@@ -13,5 +13,5 @@ verbose = True
 # Feeds in the form (category, name, url) - the category can be empty ('')
 feeds = [
     ('News', 'Tagesschau', 'https://www.tagesschau.de/xml/rss2'),
-    ('News', 'Vice', 'htdtps://www.vice.com/de/rss'),
+    ('News', 'Vice', 'https://www.vice.com/de/rss'),
 ]
