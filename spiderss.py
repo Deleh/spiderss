@@ -125,8 +125,8 @@ def update_feed(feed):
                     text = get_article_text(a)
                     write_to_file(os.path.join(feedpath_new, filename), text)
                     log('    added article "{}"'.format(a.title))
-         except Exception as e:
-             error('    while parsing article "{}: {}"'.format(a.title, e))
+        except Exception as e:
+            error('while parsing feed article "{}" from feed "{}": {}'.format(a.title, feed['name'], e))
 
 
 # Delete articles older than max_age
