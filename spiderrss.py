@@ -4,16 +4,21 @@ import requests
 import html2text
 import re
 import os
+import time
 from time import mktime
 from datetime import datetime, timedelta
+from config import base_directory, update_interval, max_age, verbose, feeds
+import logging
+import sys, getopt
 
-feeds = [('News', 'Tagesschau', 'https://www.tagesschau.de/xml/rss2'),
-         ('Linux', 'NixOS', 'https://nixos.org/blogs.xml'),
-         ('News', 'Vice', 'https://www.vice.com/de/rss')
-         ]
+def log(text):
+    if verbose:
+        #logging.info(text)
+        print('{} - {}'.format(datetime.now().strftime('%d.%m %H:%M'), text))
 
-out_directory = './out'
-delta = 365
+def error(text):
+    #logging.error(text)
+    print('{} - ERROR: {}'.format(datetime.now().strftime('%d.%m %H:%M'), text))
 
 
 # Get content of a webpage
@@ -27,10 +32,14 @@ def html_to_markdown(html):
     return html2text.html2text(html)
 
 
-# Get articles of a RSS feed 
-def get_articles(url):
-    feed = feedparser.parse(url)
-    return feed.entries
+# Get articles of a feed 
+def get_articles(feed):
+    try:
+        feed = feedparser.parse(feed[2])
+        return feed.entries
+    except Exception as e:
+        error('failed to get feed "{}: {}"'.format(feed[1], e.msg))
+        return []
 
 
 def write_to_file(filename, text):
@@ -54,20 +63,21 @@ def get_filename(date, title):
 
 # Update feed
 def update_feed(feed):
-    
+
     category = feed[0]
     name = feed[1]
-    url = feed[2]
 
-    feedpath_new = os.path.join(out_directory, category, name, 'new')
-    feedpath_read = os.path.join(out_directory, category, name, 'read')
+    log('updating feed "{}"'.format(name))
+
+    feedpath_new = os.path.join(base_directory, category, name, 'new')
+    feedpath_read = os.path.join(base_directory, category, name, 'read')
     if not os.path.exists(feedpath_new):
         os.makedirs(feedpath_new)
     if not os.path.exists(feedpath_read):
         os.makedirs(feedpath_read)
 
-    articles = get_articles(url)
-    threshold_date = datetime.now() - timedelta(days = delta)
+    articles = get_articles(feed)
+    threshold_date = datetime.now() - timedelta(days = max_age)
     for a in articles:
         date = datetime.fromtimestamp(mktime(a.published_parsed))
         if date > threshold_date:
@@ -77,31 +87,58 @@ def update_feed(feed):
                write_to_file(os.path.join(feedpath_new, filename), text)
 
 
-# Delete articles older than day delta
+# Delete articles older than max_age
 def delete_old_articles():
 
-    threshold_date = datetime.now() - timedelta(days = delta)
-    for subdir, dirs, files in os.walk(out_directory):
+    threshold_date = datetime.now() - timedelta(days = max_age)
+    for subdir, dirs, files in os.walk(base_directory):
 
         # Skip 'loved' directory
-        if not os.path.join(out_directory, 'loved') in subdir:
+        if not os.path.join(base_directory, 'loved') in subdir:
             for file in files:
                  date = datetime.strptime(file[:12], '%Y%m%d%H%M')
                  if threshold_date > date:
                      os.remove(os.path.join(subdir, file))
+    log('deleted old articles')
 
 
+def initialize():
 
-def main():
-    lovedpath = os.path.join(out_directory, 'loved')
+    # Create 'loved' directory if not existent
+    lovedpath = os.path.join(base_directory, 'loved')
     if not os.path.exists(lovedpath):
         os.makedirs(lovedpath)
-    for feed in feeds:
-        update_feed(feed)
-    delete_old_articles()
+
+
+def crawl():
+
+    # Main loop
+    while True:
+        for feed in feeds:
+            update_feed(feed)
+        delete_old_articles()
+        time.sleep(update_interval * 60)
+
+def get_help_message():
+    return 'spiderrss.py | run'
+
+def main(argv):
+
+    # Get arguments
+    try:
+        opts, args = getopt,getopt(argv, 'h', ['ifile=', 'ofile='])
+    except:
+        print('spiderrss.py [ run | create_config <file> ]')
+
+    for opt, arg in opts:
+        if opt == '-h'
+
+
+    #initialize()
+    #crawl()
 
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
 
