@@ -29,13 +29,18 @@ def error(text):
 
 def print_logo():
     logo = '''
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-###### ###### ## #####  ###### ###### ###### ###### ######
-##     ##  ## ## ##  ## ##     ##  ## ##  ## ##     ##
-###### ###### ## ##  ## #####  ###### ###### ###### ######
-    ## ##     ## ##  ## ##     ## ##  ## ##      ##     ##
-###### ##     ## #####  ###### ##  ## ##  ## ###### ######
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                          ;:                                                    
+                         .N' ,K:                                                
+         ,O                  .0MWx'                               lk         0; 
+    ,kl;';O  lx. .xc    :k,    .kMMXl.c    .:x.   .xl .dl    :kl,'oo   .xd:,,O. 
+  kNOokOWc  ;WMKccXMX  .WMX.  :XM,,OMMl  oXMcNMd 'oMMk:XW:.OWddO0N,  cKNlkONk   
+  MMo  0c    KMK  :MM'  XMO   oMM.  MMl  cMM. ON: .MMl    'MM, .K'   OMX  oO    
+  WMWxOWMN:  KMK  ;MM'  XMO   oMM.  MMl  cMM:c;   .MMl    .WMXx0MMX. xMMOkNMWk  
+   'X; .MMo  KMK  ;MM'  XMO   oMM.  MMl  cMM,     .MMl      :X. ;MM,  .0d  0MX  
+  .Kdc:'MMo.oNMNl;lMW. .WM0   KMMk:'MMl  dMM:  .. cMMk.'   ,Xlc;cMM,  xOl:'KMX  
+ ;kddkNKl.   XMNkWk,    :N0;  .'cOW0c.   ,lOW0;   .:0Nl.  okddOW0:. .kdoxXNd,   
+             WMX                                                                
+            ;..cc                                                               
     '''
 
     print(logo)
