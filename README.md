@@ -133,7 +133,7 @@ Thus articles are sorted by publishing date automatically.
 
 ## Read articles on multiple devices
 
-Just synchronize the base_dir with [Syncthing](https://syncthing.net/) or put it in your [Nextcloud](https://nextcloud.com/)
+Just synchronize the base_dir with [Syncthing](https://syncthing.net/) or put it in your [Nextcloud](https://nextcloud.com/).
 
 ## Acknowledgements
 
