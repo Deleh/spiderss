@@ -52,10 +52,10 @@ optional arguments:
                         config file (default: ./config.toml)
 ```
 
-### Config
+### Configuration
 
 The config file is written in TOML.
-Edit it to your liking before calling the script.
+Edit `config.toml` to your liking before calling the script.
 
 ```
 # This defines the base directory for the feeds. Please use an absolute path.
