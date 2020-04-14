@@ -3,3 +3,4 @@ readability-lxml
 requests
 html2text
 toml
+opml
