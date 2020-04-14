@@ -1,9 +1,53 @@
-# spiderss
+# spiderss - a plaintext RSS crawler
 
 ![spiderss logo](images/logo.png)
 
-__spiderss__ is a plaintext RSS reader / crawler.
-Articles are stored as Markdown files on the filesystem.
+__spiderss__ is a plaintext RSS crawler, based on [feedparser](https://github.com/kurtmckee/feedparser), [python-readability](https://github.com/buriy/python-readability) and [html2text](https://github.com/Alir3z4/html2text)
+Articles are parsed as Markdown files from the original article web page and stored on the filesystem.
+
+## Features
+
+- Categories
+- Delete articles after a few days
+- Distinguish _new_ from _read_ articles
+- Store _loved_ articles forever
+- OPML import
+
+## Installation
+
+### NixOS
+
+Just call `nix-shell` in the project directory.
+
+### Legacy OS
+
+Install the requirements with `pip install -r requirements.txt`.
+
+## Usage
+
+```
+./spiderss.py [-h] [-V] [-v] [-c CONFIG]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -V, --version         show version and exit
+  -v, --verbose         verbose output
+  -c CONFIG, --config CONFIG
+                        config file (default: ./config.toml)
+```
+
+### Config
+
+The config file is written in TOML and has the following variables:
+
+__base_dir__: The base directory where your articles are stored.
+
+__max_age__: The amount of days, your articles are kept on the filesystem. Articles in the __loved__ folder are skipped.
+
+__[[feed]]__: Is a feed element. It has the following attributes:\
+__category__: Category of the feed.\
+__name__: Name of the feed.\
+__url__: URL of the feed.
 
 ## Why?
 
