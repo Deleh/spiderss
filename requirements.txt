@@ -1,6 +1,6 @@
 feedparser
+html2text
+opml
 readability-lxml
 requests
-html2text
 toml
-opml
