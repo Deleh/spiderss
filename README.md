@@ -3,7 +3,7 @@
 ![spiderss logo](images/logo.png)
 
 __spiderss__ is a plaintext RSS reader / crawler.
-Feeds are parsed the articles are stored as Markdown files on the filesystem.
+Articles are stored as Markdown files on the filesystem.
 
 ## Why?
 
