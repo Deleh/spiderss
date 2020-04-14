@@ -3,11 +3,13 @@
 ![spiderss logo](images/logo.png)
 
 __spiderss__ is a plaintext RSS crawler, based on [feedparser](https://github.com/kurtmckee/feedparser), [python-readability](https://github.com/buriy/python-readability) and [html2text](https://github.com/Alir3z4/html2text).
-Articles are parsed as Markdown files from the original article web page and stored on the filesystem.
+Actually it is just a python script.
 
 Read the news you want, the way you want it.
 Without advertisements, clickbait and trackers.
-And of course because plaintext is God.
+Drop unresponsive web interfaces and stop accepting cookies, because plaintext is God.
+
+Articles are parsed as Markdown files from the original article web page and stored on the filesystem.
 
 ## Features
 
