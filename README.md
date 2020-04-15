@@ -42,11 +42,12 @@ Use [Nix-on-Droid](https://github.com/t184256/nix-on-droid) and call `nix-shell`
 ## Usage
 
 ```
-./spiderss.py [-h] [-V] [-v] [-c CONFIG]
+usage: spiderss.py [-h] [-v] [-c CONFIG]
+
+Crawl RSS feeds and store articles as Markdown files.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -V, --version         show version and exit
   -v, --verbose         verbose output
   -c CONFIG, --config CONFIG
                         config file (default: ./config.toml)
@@ -64,20 +65,27 @@ base_directory = '/home/<user>/rss'
 # Articles older than max_age (days) will be deleted and not be added
 max_age = 30
 
+# Date and time format as strftime to be included in the articles
+datetime_format = '%d.%m.%Y %H:%M'
+
 # Feeds
 # The category can be empty (''). The feed fill then be stored in the base_directory.
 # The category can also be a path, which will result in subdirectories (e.g. 'technology/hardware').
-# The name can also be empty (''). feeds with the same category will then be stored in the same directory.
+# The name can be empty, too (''). feeds with the same category will then be stored in the same directory.
+# If scrape is set to true, the article content will be fetched from it's link.
+# Otherwise the content of the RSS article is used.
 
 [[feed]]
 category = 'News'
 name = 'Newssite'
 url = 'https://example.org/feed'
+scrape = false
 
 [[feed]]
 category = 'News'
 name = 'Newssite 2'
 url = 'https://example.org/feed'
+scrape = true
 ```
 
 ### OPML import
