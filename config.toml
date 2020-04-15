@@ -11,7 +11,8 @@ datetime_format = '%d.%m.%Y %H:%M'
 # The category can be empty (''). The feed fill then be stored in the base_directory.
 # The category can also be a path, which will result in subdirectories (e.g. 'technology/hardware').
 # The name can be empty, too (''). feeds with the same category will then be stored in the same directory.
-# If scrape is set to true, the article content will be fetched from it's link. Otherwise the content of the RSS article is used.
+# If scrape is set to true, the article content will be fetched from it's link.
+# Otherwise the content of the RSS article is used.
 
 [[feed]]
 category = 'News'
