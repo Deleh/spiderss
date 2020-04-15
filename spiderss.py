@@ -14,12 +14,6 @@ from readability import Document
 from time import mktime
 
 '''
-Static variables
-'''
-
-version = '0.1'
-
-'''
 Output functions
 '''
 
@@ -57,8 +51,8 @@ def print_logo():
 Utility functions
 '''
 
-# Get HTML content of a webpage
-def get_html_content(url):
+# Get readable HTML of a webpage
+def get_readable_html(url):
     response = requests.get(url)
     doc = Document(response.text)
     return doc.summary()
@@ -66,7 +60,16 @@ def get_html_content(url):
 
 # Convert HTML to Markdown
 def html_to_markdown(html):
-    return html2text.html2text(html)
+    h = html2text.HTML2Text()
+    h.unicode_snob = True
+    h.ignore_links = True
+    h.ignore_images = False
+    #h.ignore_anchors = True
+    #h.skip_internal_links = True
+    #h.protect_links = True
+    #h.use_automatic_links = True
+    h.body_width = 0
+    return h.handle(html).strip()
 
 
 # Get articles of a feed 
@@ -82,7 +85,7 @@ def write_to_file(filename, text):
     file.close()
 
 
-# Get filename from feedparser article
+# Get filename from a date and a title
 def get_filename(date, title):
 
     # Get date as single block
@@ -95,11 +98,52 @@ def get_filename(date, title):
     return '{}_{}.md'.format(date, title)
 
 
-# Get Markdown text from an article
-def get_article_text(article):
-    head = '# {}\n\n[Link]({})'.format(article.title, article.link)
-    body = html_to_markdown(get_html_content(article.link))
-    return '{}\n\n{}'.format(head, body)
+# Get summary snippet for an article
+def get_article_summary(article):
+    try:
+        h = html2text.HTML2Text()
+        h.unicode_snob = True
+        h.ignore_links = True
+        h.ignore_images = True
+        #h.ignore_anchors = True
+        #h.skip_internal_links = True
+        h.body_width = 0
+        summary = h.handle(article.summary).split('\n\n')[0].strip()
+        return '**{}**\n\n'.format(summary)
+    except:
+        return ''
+
+
+# Get image snippet for an article
+def get_article_image(article):
+    try:
+        image_url = re.search('(?P<image>https?://\S+(\.png|\.jpg|\.jpeg))', str(article), re.IGNORECASE).group('image')
+        return '![Image]({})\n\n'.format(image_url)
+    except:
+        return ''
+
+
+# Get text from an article
+def get_article(article, scrape):
+
+    # Construct head of article
+    image_url = get_article_image(article)
+    date = datetime.fromtimestamp(mktime(article.published_parsed)).strftime(datetime_format)
+    head = '# {}\n\n{}{}{} - [Link]({})'.format(article.title, image_url, get_article_summary(article), date, article.link)
+
+    # Get body of article
+    if scrape:
+        body_html = get_readable_html(article.link)
+    else:
+        body_html = ''
+        if hasattr(article, 'content'):
+            for c in article.content:
+                if c.type == 'text/html':
+                    body_html += c.value
+
+    body = html_to_markdown(body_html)
+
+    return '{}\n\n---\n\n{}'.format(head, body)
     
 
 # Update feed
@@ -122,7 +166,7 @@ def update_feed(feed):
             if date > threshold_date:
                 filename = get_filename(date, a.title)
                 if not os.path.exists(os.path.join(feedpath_new, filename)) and not os.path.exists(os.path.join(feedpath_read, filename)):
-                    text = get_article_text(a)
+                    text = get_article(a, feed['scrape'])
                     write_to_file(os.path.join(feedpath_new, filename), text)
                     log('    added article "{}"'.format(a.title))
         except Exception as e:
@@ -150,12 +194,13 @@ def remove_old_articles():
 # Parse config file
 def load_config(filepath):
 
-    global base_directory, max_age, feeds
+    global base_directory, max_age, datetime_format, feeds
 
     try:
         config = toml.load(filepath)
         base_directory = config['base_directory']
         max_age = config['max_age']
+        datetime_format = config['datetime_format']
         feeds = config['feed']
     except Exception as e:
         error('while parsing config: {}'.format(e))
@@ -191,19 +236,13 @@ def main():
 
     # Initialize parser
     parser = argparse.ArgumentParser(description = 'Crawl RSS feeds and store articles as Markdown files.')
-    parser.add_argument('-V', '--version', action = 'store_true', help = 'show version and exit')
     parser.add_argument('-v', '--verbose', action = 'store_true', help = 'verbose output')
     parser.add_argument('-c', '--config', default = './config.toml', help = 'config file (default: ./config.toml)')
 
     # Get args
     args = parser.parse_args()
-    show_version = args.version
     verbose = args.verbose
     config = args.config
-
-    if show_version:
-        print('spiderss v{}'.format(version))
-        sys.exit()
 
     # Main routine
     print_logo()

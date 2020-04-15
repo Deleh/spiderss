@@ -4,17 +4,23 @@ base_directory = '/home/<user>/rss'
 # Articles older than max_age (days) will be deleted and not be added
 max_age = 30
 
+# Date and time format as strftime to be included in the articles
+datetime_format = '%d.%m.%Y %H:%M'
+
 # Feeds
 # The category can be empty (''). The feed fill then be stored in the base_directory.
 # The category can also be a path, which will result in subdirectories (e.g. 'technology/hardware').
-# The name can also be empty (''). feeds with the same category will then be stored in the same directory.
+# The name can be empty, too (''). feeds with the same category will then be stored in the same directory.
+# If scrape is set to true, the article content will be fetched from it's link. Otherwise the content of the RSS article is used.
 
 [[feed]]
 category = 'News'
 name = 'Newssite'
 url = 'https://example.org/feed'
+scrape = false
 
 [[feed]]
 category = 'News'
 name = 'Newssite 2'
 url = 'https://example.org/feed'
+scrape = true

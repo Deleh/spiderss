@@ -15,6 +15,7 @@ def print_outline(outline, category):
         print('category = \'{}\''.format(category))
         print('name = \'{}\''.format(outline.text))
         print('url = \'{}\''.format(outline.xmlUrl))
+        print('scrape = false')
         print('') 
 
 '''
