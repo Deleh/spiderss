@@ -33,7 +33,7 @@ Call `nix-shell` in the project directory. This will drop you into a python envi
 
 ### Legacy OS
 
-Install **Pandoc** and the python requirements with `pip install -r requirements.txt`.
+Install [Panoc](https://pandoc.org/) with your package manager and the python requirements with `pip install -r requirements.txt`.
 
 ### Android
 
