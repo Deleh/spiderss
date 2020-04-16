@@ -6,6 +6,7 @@ import html2text
 import os
 import re
 import requests
+import subprocess
 import sys
 import time
 import toml
@@ -79,10 +80,11 @@ def get_articles(feed_url):
 
 
 # Write text to file
-def write_to_file(filename, text):
-    file = open(filename, 'w')
-    file.write(text)
-    file.close()
+def write_to_file(filepath, text):
+
+    # Postprocess article with pandoc and write to file
+    pandoc = subprocess.Popen(['pandoc', '-f', 'markdown', '-t', 'markdown', '-o', filepath], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    pandoc.communicate(input = text.encode())
 
 
 # Get filename from a date and a title
@@ -129,7 +131,7 @@ def get_article(article, scrape):
     # Construct head of article
     image_url = get_article_image(article)
     date = datetime.fromtimestamp(mktime(article.published_parsed)).strftime(datetime_format)
-    head = '# {}\n\n{}{}{} - [Link]({})'.format(article.title, image_url, get_article_summary(article), date, article.link)
+    head = '# {}\n\n{}{}{}\n\n[Link]({})'.format(article.title, image_url, get_article_summary(article), date, article.link)
 
     # Get body of article
     if scrape:

@@ -5,6 +5,7 @@ stdenv.mkDerivation {
   buildInputs = with pkgs; [
     python37Full
     python37Packages.virtualenv
+    pandoc
   ];
   src = null;
   shellHook = ''

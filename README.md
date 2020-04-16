@@ -2,7 +2,7 @@
 
 ![spiderss logo](images/logo.png)
 
-__spiderss__ is a plaintext RSS crawler, based on [feedparser](https://github.com/kurtmckee/feedparser), [python-readability](https://github.com/buriy/python-readability) and [html2text](https://github.com/Alir3z4/html2text).
+__spiderss__ is a plaintext RSS crawler, based on [feedparser](https://github.com/kurtmckee/feedparser), [python-readability](https://github.com/buriy/python-readability), [html2text](https://github.com/Alir3z4/html2text) and [Pandoc](https://pandoc.org/).
 Actually, it's just a python script.
 
 Read the news you want, the way you want it.
@@ -33,7 +33,7 @@ Call `nix-shell` in the project directory. This will drop you into a python envi
 
 ### Legacy OS
 
-Install the requirements with `pip install -r requirements.txt`.
+Install **Pandoc** and the python requirements with `pip install -r requirements.txt`.
 
 ### Android
 
