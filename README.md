@@ -131,6 +131,7 @@ Every feed gets a __new__ and a __read__ subfolder.
 Article files are stored in the __new__ folder.
 Move them to the __read__ folder if you're done reading them.
 You can do this easily e.g. by setting a keybinding in ranger.
+Articles stored in one of the folders are not crawled again.
 
 A special folder, called __loved__, is created on startup in the base_directory.
 It is intended for articles, you want to keep.
