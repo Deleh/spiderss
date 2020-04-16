@@ -62,10 +62,10 @@ Edit `config.toml` to your liking before calling the script.
 # This defines the base directory for the feeds. Please use an absolute path.
 base_directory = '/home/<user>/rss'
 
-# Articles older than max_age (days) will be deleted and not be added
+# Articles older than max_age (days) will be deleted and not be added.
 max_age = 30
 
-# Date and time format as strftime to be included in the articles
+# Date and time format as strftime to be included in the articles.
 datetime_format = '%d.%m.%Y %H:%M'
 
 # Feeds
@@ -113,25 +113,25 @@ The script creates a folder structure the following way:
 
 ```
 base_directory
-| - category
-    | - feedname
-        | - new
-        | - read
-    | - another feedname
-        | - new
-        | - read
-| - another category
-    | - a third feedname
-        | - new
-        | - read
-| - loved
+├── category
+│   ├── feedname
+│   │   ├── new
+│   │   └── read
+│   └── another feedname
+│       ├── new
+│       └── read
+├── another category
+│   └── a third feedname
+│       ├── new
+│       └── read
+└── loved
 ```
 
 Every feed gets a __new__ and a __read__ subfolder.
-Article files are stored in the __new__ folder.
+Article files are stored in the __new__ folder, when they are created.
 Move them to the __read__ folder if you're done reading them.
 You can do this easily e.g. by setting a keybinding in ranger.
-Articles stored in one of the folders are not crawled again.
+Articles, stored in one of the folders are not crawled again and are deleted if they expire the max_age.
 
 A special folder, called __loved__, is created on startup in the base_directory.
 It is intended for articles, you want to keep.
@@ -142,7 +142,7 @@ Thus articles are sorted by publishing date automatically.
 
 ## Read articles on multiple devices
 
-Just synchronize the base_dir with [Syncthing](https://syncthing.net/) or put it in your [Nextcloud](https://nextcloud.com/).
+Just synchronize the base_directory with [Syncthing](https://syncthing.net/), [rsync](https://rsync.samba.org/) or put it in your [Nextcloud](https://nextcloud.com/).
 
 ## Acknowledgements
 
