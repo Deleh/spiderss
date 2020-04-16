@@ -1,10 +1,10 @@
 # This defines the base directory for the feeds. Please use an absolute path.
 base_directory = '/home/<user>/rss'
 
-# Articles older than max_age (days) will be deleted and not be added
+# Articles older than max_age (days) will be deleted and not be added.
 max_age = 30
 
-# Date and time format as strftime to be included in the articles
+# Date and time format as strftime to be included in the articles.
 datetime_format = '%d.%m.%Y %H:%M'
 
 # Feeds
