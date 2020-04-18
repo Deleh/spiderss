@@ -81,19 +81,18 @@ def get_filename(date, title):
     return '{}_{}.{}'.format(date, title, fileending)
 
 
-# If scraped, use first content image as fallback
-# Get image snippet for an article
-def get_article_image(article):
+# Get HTML image snippet from the first image url in a text
+def get_image_snippet(text):
     
     try:
-        image_url = re.search('(?P<image>https?://\S+(\.png|\.jpg|\.jpeg))', str(article), re.IGNORECASE).group('image')
+        image_url = re.search('(?P<image>https?://\S+(\.png|\.jpg|\.jpeg))', text, re.IGNORECASE).group('image')
         return '<img src="{}" alt="Image">\n\n'.format(image_url)
     except:
         return ''
 
 
-# Get summary snippet for an article
-def get_article_summary(article):
+# Get HTML summary snippet from a HTML text 
+def get_summary_snippet(text):
 
     try:
         h = html2text.HTML2Text()
@@ -101,6 +100,7 @@ def get_article_summary(article):
         h.ignore_links = True
         h.ignore_images = True
         h.body_width = 0
+        summary = h.handle(text).split('\n\n')[0].strip()
         return '<p><b>{}</b></p>\n\n'.format(summary)
     except:
         return ''
@@ -176,15 +176,18 @@ def postprocess(text):
 # Get constructed article
 def get_article(article, scrape):
 
-    # Construct head of article
-    image = get_article_image(article)
-    summary = get_article_summary(article)
-    #TODO: Current time as fallback?
-    date = datetime.fromtimestamp(mktime(article.published_parsed)).strftime(datetime_format)
-    head = '<h1>{}</h1>\n\n{}{}<p>{} - <a href={}>Link</a></p>'.format(article.title, image, summary, date, article.link)
-
     # Get body of article
     body = get_article_body(article, scrape)
+
+    # Construct head of article
+    image = get_image_snippet(str(article))
+    if image == '':
+        image = get_image_snippet(body)
+    summary = get_summary_snippet(article.summary)
+    if summary == '':
+        summary = get_summary_snippet(body)
+    date = datetime.fromtimestamp(mktime(article.published_parsed)).strftime(datetime_format)
+    head = '<h1>{}</h1>\n\n{}{}<p>{} - <a href={}>Link</a></p>'.format(article.title, image, summary, date, article.link)
 
     # Postprocess article
     article_text = postprocess('{}\n\n<hr>\n\n{}'.format(head, body)).strip()
@@ -214,6 +217,7 @@ def update_feed(feed):
     for a in articles:
         
         try:
+            #TODO: Current time as fallback?
             date = datetime.fromtimestamp(mktime(a.published_parsed))
             if date > threshold_date:
                 filename = get_filename(date, a.title)
