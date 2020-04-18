@@ -52,39 +52,19 @@ def print_logo():
 Utility functions
 '''
 
-# Get readable HTML of a webpage
-def get_readable_html(url):
-    response = requests.get(url)
-    doc = Document(response.text)
-    return doc.summary()
-
-
-# Convert HTML to Markdown
-def html_to_markdown(html):
-    h = html2text.HTML2Text()
-    h.unicode_snob = True
-    h.ignore_links = True
-    h.ignore_images = False
-    #h.ignore_anchors = True
-    #h.skip_internal_links = True
-    #h.protect_links = True
-    #h.use_automatic_links = True
-    h.body_width = 0
-    return h.handle(html).strip()
-
 
 # Get articles of a feed 
-def get_articles(feed_url):
-    feed = feedparser.parse(feed_url)
+def get_articles(feed):
+    feed = feedparser.parse(feed['url'])
     return feed.entries
 
 
 # Write text to file
 def write_to_file(filepath, text):
 
-    # Postprocess article with pandoc and write to file
-    pandoc = subprocess.Popen(['pandoc', '-f', 'markdown', '-t', 'markdown', '-o', filepath], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    pandoc.communicate(input = text.encode())
+    file = open(filepath, 'w')
+    file.write(text)
+    file.close()
 
 
 # Get filename from a date and a title
@@ -97,72 +77,104 @@ def get_filename(date, title):
     title = re.sub('[^A-Za-z0-9 ]+', '', title.lower())
     title = re.sub(' ', '_', title)
     
-    return '{}_{}.md'.format(date, title)
+    return '{}_{}.{}'.format(date, title, fileending)
+
+
+# Get image snippet for an article
+def get_article_image(article):
+    
+    try:
+        image_url = re.search('(?P<image>https?://\S+(\.png|\.jpg|\.jpeg))', str(article), re.IGNORECASE).group('image')
+        return '<img src="{}" alt="Image">\n\n'.format(image_url)
+    except:
+        return ''
 
 
 # Get summary snippet for an article
 def get_article_summary(article):
+
     try:
         h = html2text.HTML2Text()
         h.unicode_snob = True
         h.ignore_links = True
         h.ignore_images = True
-        #h.ignore_anchors = True
-        #h.skip_internal_links = True
         h.body_width = 0
-        summary = h.handle(article.summary).split('\n\n')[0].strip()
-        return '**{}**\n\n'.format(summary)
+        return '<p><b>{}</b></p>\n\n'.format(summary)
     except:
         return ''
 
 
-# Get image snippet for an article
-def get_article_image(article):
-    try:
-        image_url = re.search('(?P<image>https?://\S+(\.png|\.jpg|\.jpeg))', str(article), re.IGNORECASE).group('image')
-        return '![Image]({})\n\n'.format(image_url)
-    except:
-        return ''
+# Get article body either from web or its content
+def get_article_body(article, scrape):
 
+    body = ''
 
-# Get text from an article
-def get_article(article, scrape):
-
-    # Construct head of article
-    image_url = get_article_image(article)
-    date = datetime.fromtimestamp(mktime(article.published_parsed)).strftime(datetime_format)
-    head = '# {}\n\n{}{}{}\n\n[Link]({})'.format(article.title, image_url, get_article_summary(article), date, article.link)
-
-    # Get body of article
+    # If scrape, get article with readability
     if scrape:
-        body_html = get_readable_html(article.link)
+
+        response = requests.get(article.link)
+        doc = Document(response.text)
+        body = doc.summary()
+
+    # Else construct from article content
     else:
-        body_html = ''
+        
         if hasattr(article, 'content'):
             for c in article.content:
                 if c.type == 'text/html':
-                    body_html += c.value
+                    body += c.value
 
-    body = html_to_markdown(body_html)
+    return body
 
-    return '{}\n\n---\n\n{}'.format(head, body)
-    
+
+# Postprocess HTML
+def postprocess(text):
+
+    processor = subprocess.Popen(postprocessor.split(' '), stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+    output = processor.communicate(input = text.encode())[0].decode().strip()
+
+    return output
+
+
+# Get constructed article
+def get_article(article, scrape):
+
+    # Construct head of article
+    image = get_article_image(article)
+    summary = get_article_summary(article)
+    date = datetime.fromtimestamp(mktime(article.published_parsed)).strftime(datetime_format)
+    head = '<h1>{}</h1>\n\n{}{}<p>{} - <a href={}>Link</a></p>'.format(article.title, image, summary, date, article.link)
+
+    # Get body of article
+    body = get_article_body(article, scrape)
+
+    # Postprocess article
+    article_text = postprocess('{}\n\n<hr>\n\n{}'.format(head, body)).strip()
+
+    return article_text
+
 
 # Update feed
 def update_feed(feed):
 
     log('  updating feed "{}"'.format(feed['name']))
 
+    # Set feedpaths
     feedpath_new = os.path.join(base_directory, feed['category'], feed['name'], 'new')
     feedpath_read = os.path.join(base_directory, feed['category'], feed['name'], 'read')
+    
     if not os.path.exists(feedpath_new):
         os.makedirs(feedpath_new)
+        
     if not os.path.exists(feedpath_read):
         os.makedirs(feedpath_read)
 
-    articles = get_articles(feed['url'])
+    # Update articles
+    articles = get_articles(feed)
     threshold_date = datetime.now() - timedelta(days = max_age)
+    
     for a in articles:
+        
         try:
             date = datetime.fromtimestamp(mktime(a.published_parsed))
             if date > threshold_date:
@@ -171,6 +183,7 @@ def update_feed(feed):
                     text = get_article(a, feed['scrape'])
                     write_to_file(os.path.join(feedpath_new, filename), text)
                     log('    added article "{}"'.format(a.title))
+
         except Exception as e:
             error('while parsing feed article "{}" from feed "{}": {}'.format(a.title, feed['name'], e))
 
@@ -193,16 +206,19 @@ def remove_old_articles():
 
     log('  removed {} articles'.format(count))
 
+
 # Parse config file
 def load_config(filepath):
 
-    global base_directory, max_age, datetime_format, feeds
+    global base_directory, max_age, datetime_format, postprocessor, fileending, feeds
 
     try:
         config = toml.load(filepath)
         base_directory = config['base_directory']
         max_age = config['max_age']
         datetime_format = config['datetime_format']
+        postprocessor = config['postprocessor']
+        fileending = config['fileending']
         feeds = config['feed']
     except Exception as e:
         error('while parsing config: {}'.format(e))

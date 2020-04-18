@@ -9,7 +9,8 @@ Read the news you want, the way you want it.
 Without advertisements, clickbait and trackers.
 Drop unresponsive web interfaces and stop accepting cookies, because plaintext is God.
 
-Articles are scraped as Markdown files from the original article web page and stored in a special folder structure.
+Articles are scraped by default as Markdown files from the original article web page and stored in a special folder structure.
+You can parse articles in your favourite file format by defining your own postprocessor.
 
 __Note:__ This script is under development and far from being complete.
 Until now it works for the most feeds I read.
@@ -64,6 +65,12 @@ base_directory = '/home/<user>/rss'
 
 # Articles older than max_age (days) will be deleted and not be added.
 max_age = 30
+
+# Postprocessing command of the articles. The article is written to stdin in HTML format and read from stdout.
+postprocessor = 'pandoc -f html -t markdown_strict-raw_html --reference-links --reference-location=document'
+
+# Fileending for the article files.
+fileending = 'md'
 
 # Date and time format as strftime to be included in the articles.
 datetime_format = '%d.%m.%Y %H:%M'
@@ -146,6 +153,6 @@ Just synchronize the base_directory with [Syncthing](https://syncthing.net/), [r
 
 ## Acknowledgements
 
-Thanks to all the people which created the nice libraries, this project in based on.
+Thanks to all the people, who created the nice libraries this project in based on.
 And also thanks to Dieter Steffmann who created the Canterbury font, which is used for the logo.
 You can find it in the `fonts/` directory.
