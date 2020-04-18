@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 from readability import Document
 from time import mktime
-from urllib.parse import urljoin, urlsplit, urlunsplit, SplitResult
+from urllib.parse import urlsplit, urlunsplit
 
 '''
 Output functions
