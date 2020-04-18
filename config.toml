@@ -8,7 +8,7 @@ max_age = 30
 datetime_format = '%d.%m.%Y %H:%M'
 
 # Postprocessing command of the articles. The article is written to stdin in HTML format and read from stdout.
-postprocessor = 'pandoc -f html -t markdown_strict-raw_html --reference-links --reference-location=document'
+postprocessor = 'pandoc -f html -t markdown_strict-raw_html+pipe_tables --reference-links --reference-location=document'
 
 # Fileending for the article files.
 fileending = 'md'
