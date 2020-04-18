@@ -2,7 +2,7 @@
 
 ![spiderss logo](images/logo.png)
 
-__spiderss__ is a plaintext RSS crawler, based on [feedparser](https://github.com/kurtmckee/feedparser), [python-readability](https://github.com/buriy/python-readability), [html2text](https://github.com/Alir3z4/html2text) and [Pandoc](https://pandoc.org/).
+__spiderss__ is a plaintext RSS crawler, based on [feedparser](https://github.com/kurtmckee/feedparser), [python-readability](https://github.com/buriy/python-readability), [html2text](https://github.com/Alir3z4/html2text), [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/) and [Pandoc](https://pandoc.org/).
 Actually, it's just a python script.
 
 Read the news you want, the way you want it.
