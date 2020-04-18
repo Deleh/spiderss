@@ -111,11 +111,11 @@ def get_article_body(article, scrape):
 
     body = ''
 
-    # TODO: Include appropriate header?
     # If scrape, get article with readability
     if scrape:
 
-        response = requests.get(article.link)
+        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.110 Safari/537.36'}
+        response = requests.get(article.link, headers = headers)
         doc = Document(response.text)
         body = doc.summary()
 
@@ -134,7 +134,6 @@ def get_article_body(article, scrape):
             if new_src.startswith('http'):
                 body = body.replace('"{}"'.format(src), '"{}"'.format(new_src), 1)
             
-        # TODO: catch mailto:
         for a in soup.find_all('a', href = True):
             href = a.get('href')
             splitted_href = urlsplit(href)
