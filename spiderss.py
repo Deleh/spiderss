@@ -21,7 +21,7 @@ Output functions
 # Print log message
 def log(text, force = False):
     if verbose or force:
-        print('{} - {}'.format(datetime.now().strftime('%d.%m %H:%M'), text))
+        print('{} | {}'.format(datetime.now().strftime('%d.%m %H:%M'), text))
 
 
 # Print error message and exit
