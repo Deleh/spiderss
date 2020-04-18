@@ -52,7 +52,6 @@ def print_logo():
 Utility functions
 '''
 
-
 # Get articles of a feed 
 def get_articles(feed):
     feed = feedparser.parse(feed['url'])
