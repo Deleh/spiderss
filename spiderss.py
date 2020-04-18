@@ -81,6 +81,7 @@ def get_filename(date, title):
     return '{}_{}.{}'.format(date, title, fileending)
 
 
+# If scraped, use first content image as fallback
 # Get image snippet for an article
 def get_article_image(article):
     
@@ -110,6 +111,7 @@ def get_article_body(article, scrape):
 
     body = ''
 
+    # TODO: Include appropriate header?
     # If scrape, get article with readability
     if scrape:
 
@@ -129,8 +131,10 @@ def get_article_body(article, scrape):
             if constructed_src[1] == '':
                 constructed_src[1] = splitted_url.netloc
             new_src = urlunsplit(constructed_src)
-            body = body.replace('"{}"'.format(src), '"{}"'.format(new_src), 1)
+            if new_src.startswith('http'):
+                body = body.replace('"{}"'.format(src), '"{}"'.format(new_src), 1)
             
+        # TODO: catch mailto:
         for a in soup.find_all('a', href = True):
             href = a.get('href')
             splitted_href = urlsplit(href)
@@ -140,7 +144,8 @@ def get_article_body(article, scrape):
             if constructed_href[1] == '':
                 constructed_href[1] = splitted_url.netloc
             new_href = urlunsplit(constructed_href)
-            body = body.replace('"{}"'.format(href), '"{}"'.format(new_href), 1)
+            if new_href.startswith('http'):
+                body = body.replace('"{}"'.format(href), '"{}"'.format(new_href), 1)
             
 
     # Else construct from article content
@@ -175,6 +180,7 @@ def get_article(article, scrape):
     # Construct head of article
     image = get_article_image(article)
     summary = get_article_summary(article)
+    #TODO: Current time as fallback?
     date = datetime.fromtimestamp(mktime(article.published_parsed)).strftime(datetime_format)
     head = '<h1>{}</h1>\n\n{}{}<p>{} - <a href={}>Link</a></p>'.format(article.title, image, summary, date, article.link)
 
