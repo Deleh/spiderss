@@ -129,10 +129,16 @@ def get_article_body(article, scrape):
 # Postprocess HTML
 def postprocess(text):
 
-    processor = subprocess.Popen(postprocessor.split(' '), stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
-    output = processor.communicate(input = text.encode())[0].decode().strip()
+    try:
+        processor = subprocess.Popen(postprocessor.split(' '), stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        (output, err) = processor.communicate(input = text.encode())
+        if err:
+            raise Exception(err.decode().strip())
+    except Exception as e:
+        error('    while postprocessing: {}'.format(e))
+        sys.exit(1)
 
-    return output
+    return output.decode().strip()
 
 
 # Get constructed article
