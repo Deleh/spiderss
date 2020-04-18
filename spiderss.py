@@ -10,9 +10,11 @@ import subprocess
 import sys
 import time
 import toml
+from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 from readability import Document
 from time import mktime
+from urllib.parse import urljoin, urlsplit, urlunsplit, SplitResult
 
 '''
 Output functions
@@ -114,6 +116,32 @@ def get_article_body(article, scrape):
         response = requests.get(article.link)
         doc = Document(response.text)
         body = doc.summary()
+
+        # Replace relative site links with absolute ones, using beautifulsoup
+        splitted_url = urlsplit(article.link)
+        soup = BeautifulSoup(body, features = 'lxml')
+        for img in soup.find_all('img', src = True):
+            src = img.get('src')
+            splitted_src = urlsplit(src)
+            constructed_src = [splitted_src.scheme, splitted_src.netloc, splitted_src.path, splitted_src.query, splitted_src.fragment]
+            if constructed_src[0] == '':
+                constructed_src[0] = splitted_url.scheme
+            if constructed_src[1] == '':
+                constructed_src[1] = splitted_url.netloc
+            new_src = urlunsplit(constructed_src)
+            body = body.replace('"{}"'.format(src), '"{}"'.format(new_src), 1)
+            
+        for a in soup.find_all('a', href = True):
+            href = a.get('href')
+            splitted_href = urlsplit(href)
+            constructed_href = [splitted_href.scheme, splitted_href.netloc, splitted_href.path, splitted_href.query, splitted_href.fragment]
+            if constructed_href[0] == '':
+                constructed_href[0] = splitted_url.scheme
+            if constructed_href[1] == '':
+                constructed_href[1] = splitted_url.netloc
+            new_href = urlunsplit(constructed_href)
+            body = body.replace('"{}"'.format(href), '"{}"'.format(new_href), 1)
+            
 
     # Else construct from article content
     else:
