@@ -68,17 +68,14 @@ def write_to_file(filepath, text):
     file.close()
 
 
-# Get filename from a date and a title
-def get_filename(date, title):
-
-    # Get date as single block
-    date = date.strftime('%Y%m%d%H%M')
+# Get filename postfix from a title
+def get_filename_postfix(title):
 
     # Get title as lowercase words concatenated with underscores
     title = re.sub('[^A-Za-z0-9 ]+', '', title.lower())
     title = re.sub(' ', '_', title)
     
-    return '{}_{}.{}'.format(date, title, fileending)
+    return '{}.{}'.format(title, fileending)
 
 
 # Get HTML image snippet from the first image url in a text
@@ -186,7 +183,10 @@ def get_article(article, scrape):
     summary = get_summary_snippet(article.summary)
     if summary == '':
         summary = get_summary_snippet(body)
-    date = datetime.fromtimestamp(mktime(article.published_parsed)).strftime(datetime_format)
+    try:
+        date = datetime.fromtimestamp(mktime(article.published_parsed)).strftime(datetime_format)
+    except:
+        date = datetime.now().strftime(datetime_format)
     head = '<h1>{}</h1>\n\n{}{}<p>{} - <a href={}>Link</a></p>'.format(article.title, image, summary, date, article.link)
 
     # Postprocess article
@@ -210,6 +210,9 @@ def update_feed(feed):
     if not os.path.exists(feedpath_read):
         os.makedirs(feedpath_read)
 
+    # Get exisiting articles
+    existing_articles = os.listdir(feedpath_new) + os.listdir(feedpath_read) + os.listdir(lovedpath)
+
     # Update articles
     articles = get_articles(feed)
     threshold_date = datetime.now() - timedelta(days = max_age)
@@ -217,11 +220,32 @@ def update_feed(feed):
     for a in articles:
         
         try:
-            #TODO: Current time as fallback?
-            date = datetime.fromtimestamp(mktime(a.published_parsed))
+
+            # Set fallback if no parseable date found
+            fallback = False
+            try:
+                date = datetime.fromtimestamp(mktime(a.published_parsed))
+            except:
+                date = datetime.now()
+                fallback = True
+            
             if date > threshold_date:
-                filename = get_filename(date, a.title)
-                if not os.path.exists(os.path.join(feedpath_new, filename)) and not os.path.exists(os.path.join(feedpath_read, filename)):
+
+                # Construct filename
+                filename_prefix = date.strftime('%Y%m%d%H%M')
+                filename_postfix = get_filename_postfix(a.title)
+                filename = '{}_{}'.format(filename_prefix, filename_postfix)
+
+                # Check if article exists
+                article_exists = False
+                if fallback:
+                    existing_articles_fallback = [a[13:] for a in existing_articles]
+                    if filename_postfix in existing_articles_fallback:
+                        article_exists = True
+                elif filename in existing_articles:
+                    article_exists = True
+
+                if not article_exists:
                     text = get_article(a, feed['scrape'])
                     write_to_file(os.path.join(feedpath_new, filename), text)
                     log('    added article "{}"'.format(a.title))
@@ -269,6 +293,8 @@ def load_config(filepath):
 
 # Initialize spiderss
 def initialize():
+
+    global lovedpath
 
     # Create 'loved' directory if not existent
     lovedpath = os.path.join(base_directory, 'loved')
