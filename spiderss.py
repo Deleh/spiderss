@@ -56,6 +56,7 @@ Utility functions
 
 # Get articles of a feed 
 def get_articles(feed):
+
     feed = feedparser.parse(feed['url'])
     return feed.entries
 
@@ -216,6 +217,9 @@ def update_feed(feed):
     # Update articles
     articles = get_articles(feed)
     threshold_date = datetime.now() - timedelta(days = max_age)
+
+    if len(articles) == 0:
+        error('no articles received from feed "{}"'.format(feed['name']))
     
     for a in articles:
         
@@ -302,7 +306,7 @@ def initialize():
         os.makedirs(lovedpath)
 
 
-# Update all feeds and delete old messages
+# Update all feeds and remove old articles
 def crawl():
 
     log('crawling feeds', True)
