@@ -105,54 +105,62 @@ def get_summary_snippet(text):
 
 
 # Get article body either from web or its content
-def get_article_body(article, scrape):
+def get_article_body(article, feed):
 
     body = ''
 
     # If scrape, get article with readability
-    if scrape:
+    if feed['scrape']:
 
         headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.110 Safari/537.36'}
         response = requests.get(article.link, headers = headers)
         doc = Document(response.text)
         body = doc.summary()
 
-        # Replace relative site links with absolute ones, using beautifulsoup
-        splitted_url = urlsplit(article.link)
-        soup = BeautifulSoup(body, features = 'lxml')
-        for img in soup.find_all('img', src = True):
-            src = img.get('src')
-            splitted_src = urlsplit(src)
-            constructed_src = [splitted_src.scheme, splitted_src.netloc, splitted_src.path, splitted_src.query, splitted_src.fragment]
-            if constructed_src[0] == '':
-                constructed_src[0] = splitted_url.scheme
-            if constructed_src[1] == '':
-                constructed_src[1] = splitted_url.netloc
-            new_src = urlunsplit(constructed_src)
-            if new_src.startswith('http'):
-                body = body.replace('"{}"'.format(src), '"{}"'.format(new_src), 1)
-            
-        for a in soup.find_all('a', href = True):
-            href = a.get('href')
-            splitted_href = urlsplit(href)
-            constructed_href = [splitted_href.scheme, splitted_href.netloc, splitted_href.path, splitted_href.query, splitted_href.fragment]
-            if constructed_href[0] == '':
-                constructed_href[0] = splitted_url.scheme
-            if constructed_href[1] == '':
-                constructed_href[1] = splitted_url.netloc
-            new_href = urlunsplit(constructed_href)
-            if new_href.startswith('http'):
-                body = body.replace('"{}"'.format(href), '"{}"'.format(new_href), 1)
-            
-
-    # Else construct from article content
+    # Else construct from article object
     else:
-        
+
+        # Add all content to body
         if hasattr(article, 'content'):
             for c in article.content:
-                if c.type == 'text/html':
+                if c.type == 'text/html' or c.type == 'text/plain':
                     body += c.value
+        # Use summary as fallback
+        elif hasattr(article, 'summary'):
+            body += article.summary
 
+    # Replace relative links with absolute ones, using beautifulsoup
+    try:
+        splitted_url = urlsplit(article.link)
+    except:
+        splitted_url = urlsplit(feed['url'])
+        
+    soup = BeautifulSoup(body, features = 'lxml')
+
+    for img in soup.find_all('img', src = True):
+        src = img.get('src')
+        splitted_src = urlsplit(src)
+        constructed_src = [splitted_src.scheme, splitted_src.netloc, splitted_src.path, splitted_src.query, splitted_src.fragment]
+        if constructed_src[0] == '':
+            constructed_src[0] = splitted_url.scheme
+        if constructed_src[1] == '':
+            constructed_src[1] = splitted_url.netloc
+        new_src = urlunsplit(constructed_src)
+        if new_src.startswith('http'):
+            body = body.replace('"{}"'.format(src), '"{}"'.format(new_src), 1)
+        
+    for a in soup.find_all('a', href = True):
+        href = a.get('href')
+        splitted_href = urlsplit(href)
+        constructed_href = [splitted_href.scheme, splitted_href.netloc, splitted_href.path, splitted_href.query, splitted_href.fragment]
+        if constructed_href[0] == '':
+            constructed_href[0] = splitted_url.scheme
+        if constructed_href[1] == '':
+            constructed_href[1] = splitted_url.netloc
+        new_href = urlunsplit(constructed_href)
+        if new_href.startswith('http'):
+            body = body.replace('"{}"'.format(href), '"{}"'.format(new_href), 1)
+        
     return body
 
 
@@ -172,10 +180,10 @@ def postprocess(text):
 
 
 # Get constructed article
-def get_article(article, scrape):
+def get_article(article, feed):
 
     # Get body of article
-    body = get_article_body(article, scrape)
+    body = get_article_body(article, feed)
 
     # Construct head of article
     image = get_image_snippet(str(article))
@@ -188,7 +196,13 @@ def get_article(article, scrape):
         date = datetime.fromtimestamp(mktime(article.published_parsed)).strftime(datetime_format)
     except:
         date = datetime.now().strftime(datetime_format)
-    head = '<h1>{}</h1>\n\n{}{}<p>{} - <a href={}>Link</a></p>'.format(article.title, image, summary, date, article.link)
+    try:
+        link = article.link
+    except:
+        splitted_url = urlsplit(feed['url'])
+        splitted_link = [splitted_url.scheme, splitted_url.netloc, '', '', '']
+        link = urlunsplit(splitted_link) 
+    head = '<h1>{}</h1>\n\n{}{}<p>{} - <a href={}>Link</a></p>'.format(article.title, image, summary, date, link)
 
     # Postprocess article
     article_text = postprocess('{}\n\n<hr>\n\n{}'.format(head, body)).strip()
@@ -250,12 +264,12 @@ def update_feed(feed):
                     article_exists = True
 
                 if not article_exists:
-                    text = get_article(a, feed['scrape'])
+                    text = get_article(a, feed)
                     write_to_file(os.path.join(feedpath_new, filename), text)
                     log('    added article "{}"'.format(a.title))
 
         except Exception as e:
-            error('while parsing feed article "{}" from feed "{}": {}'.format(a.title, feed['name'], e))
+            error('while parsing article "{}" from feed "{}": {}'.format(a.title, feed['name'], e))
 
 
 # Delete articles older than max_age
