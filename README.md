@@ -67,6 +67,9 @@ base_directory = '/home/<user>/rss'
 # Articles older than max_age (days) will be deleted and not be added.
 max_age = 30
 
+# Date and time format as strftime, to be included in the articles.
+datetime_format = '%d.%m.%Y %H:%M'
+
 # Postprocessing command of the articles. The article is written to stdin in HTML format and read from stdout.
 postprocessor = 'pandoc -f html -t markdown_strict-raw_html --reference-links --reference-location=document'
 
@@ -76,9 +79,6 @@ fileending = 'md'
 # List of regular expression strings. If any of these matches an lowercase article title, the article won't be saved.
 # E.g. if you wan't to skip news about RSS explicitly, add '(\W|^)rss(\W|$)'.
 filters = []
-
-# Date and time format as strftime to be included in the articles.
-datetime_format = '%d.%m.%Y %H:%M'
 
 # Feeds
 # The category can be empty (''). The feed fill then be stored in the base_directory.
