@@ -20,6 +20,7 @@ Use at your own risk!
 
 - Store articles in categories
 - Delete articles after a few days
+- Filter articles, you're not interested in
 - Distinguish __new__ from __read__ articles
 - Store __loved__ articles forever
 - OPML import
