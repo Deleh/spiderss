@@ -72,6 +72,10 @@ postprocessor = 'pandoc -f html -t markdown_strict-raw_html --reference-links --
 # Fileending for the article files.
 fileending = 'md'
 
+# List of regular expression strings. If any of these matches an lowercase article title, the article won't be saved.
+# E.g. if you wan't to skip news about RSS explicitly, add '(\W|^)rss(\W|$)'.
+filters = []
+
 # Date and time format as strftime to be included in the articles.
 datetime_format = '%d.%m.%Y %H:%M'
 
@@ -153,6 +157,6 @@ Just synchronize the base_directory with [Syncthing](https://syncthing.net/), [r
 
 ## Acknowledgements
 
-Thanks to all the people, who created the nice libraries this project in based on.
+Thanks to all the people who created the nice software, this project in based on.
 And also thanks to Dieter Steffmann who created the Canterbury font, which is used for the logo.
 You can find it in the `fonts/` directory.

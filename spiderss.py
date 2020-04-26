@@ -246,27 +246,36 @@ def update_feed(feed):
             except:
                 date = datetime.now()
                 fallback = True
-            
+
             if date > threshold_date:
 
-                # Construct filename
-                filename_prefix = date.strftime('%Y%m%d%H%M')
-                filename_postfix = get_filename_postfix(a.title)
-                filename = '{}_{}'.format(filename_prefix, filename_postfix)
+                # Check if article should be filtered
+                filter = False
+                for f in filters:
+                    if re.search(f, a.title.lower()):
+                        filter = True
+                        log('    filtered article "{}"'.format(a.title))
 
-                # Check if article exists
-                article_exists = False
-                if fallback:
-                    existing_articles_fallback = [a[13:] for a in existing_articles]
-                    if filename_postfix in existing_articles_fallback:
+                if not filter:
+
+                    # Construct filename
+                    filename_prefix = date.strftime('%Y%m%d%H%M')
+                    filename_postfix = get_filename_postfix(a.title)
+                    filename = '{}_{}'.format(filename_prefix, filename_postfix)
+
+                    # Check if article exists
+                    article_exists = False
+                    if fallback:
+                        existing_articles_fallback = [a[13:] for a in existing_articles]
+                        if filename_postfix in existing_articles_fallback:
+                            article_exists = True
+                    elif filename in existing_articles:
                         article_exists = True
-                elif filename in existing_articles:
-                    article_exists = True
 
-                if not article_exists:
-                    text = get_article(a, feed)
-                    write_to_file(os.path.join(feedpath_new, filename), text)
-                    log('    added article "{}"'.format(a.title))
+                    if not article_exists:
+                        text = get_article(a, feed)
+                        write_to_file(os.path.join(feedpath_new, filename), text)
+                        log('    added article "{}"'.format(a.title))
 
         except Exception as e:
             error('while parsing article "{}" from feed "{}": {}'.format(a.title, feed['name'], e))
@@ -294,7 +303,7 @@ def remove_old_articles():
 # Parse config file
 def load_config(filepath):
 
-    global base_directory, max_age, datetime_format, postprocessor, fileending, feeds
+    global base_directory, max_age, datetime_format, postprocessor, fileending, filters, feeds
 
     try:
         config = toml.load(filepath)
@@ -303,6 +312,7 @@ def load_config(filepath):
         datetime_format = config['datetime_format']
         postprocessor = config['postprocessor']
         fileending = config['fileending']
+        filters = config['filters']
         feeds = config['feed']
     except Exception as e:
         error('while parsing config: {}'.format(e))

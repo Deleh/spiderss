@@ -13,6 +13,10 @@ postprocessor = 'pandoc -f html -t markdown_strict-raw_html+pipe_tables --refere
 # Fileending for the article files.
 fileending = 'md'
 
+# List of regular expression strings. If any of these matches an lowercase article title, the article won't be saved.
+# E.g. if you wan't to skip news about RSS explicitly, add '(\W|^)rss(\W|$)'.
+filters = []
+
 # Feeds
 # The category can be empty (''). The feed fill then be stored in the base_directory.
 # The category can also be a path, which will result in subdirectories (e.g. 'technology/hardware').
