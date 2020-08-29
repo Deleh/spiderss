@@ -8,7 +8,6 @@ import re
 import requests
 import subprocess
 import sys
-import time
 import toml
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
@@ -16,24 +15,25 @@ from readability import Document
 from time import mktime
 from urllib.parse import urlsplit, urlunsplit
 
-'''
+"""
 Output functions
-'''
+"""
+
 
 # Print log message
-def log(text, force = False):
+def log(text, force=False):
     if verbose or force:
-        print('{} | {}'.format(datetime.now().strftime('%d.%m %H:%M'), text))
+        print("{} | {}".format(datetime.now().strftime("%d.%m %H:%M"), text))
 
 
 # Print error message and exit
 def error(text):
-    print('{} E {}'.format(datetime.now().strftime('%d.%m %H:%M'), text))
+    print("{} E {}".format(datetime.now().strftime("%d.%m %H:%M"), text))
 
 
 # Print spiderss logo
 def print_logo():
-    logo = '''
+    logo = """
                           ;:                                                    
                          .N' ,K:                                                
          ,O                  .0MWx'                               lk         0; 
@@ -46,25 +46,27 @@ def print_logo():
  ;kddkNKl.   XMNkWk,    :N0;  .'cOW0c.   ,lOW0;   .:0Nl.  okddOW0:. .kdoxXNd,   
              WMX                                                                
             ;..cc                                                               
-    '''
+    """
 
     print(logo)
 
-'''
-Utility functions
-'''
 
-# Get articles of a feed 
+"""
+Utility functions
+"""
+
+
+# Get articles of a feed
 def get_articles(feed):
 
-    feed = feedparser.parse(feed['url'])
+    feed = feedparser.parse(feed["url"])
     return feed.entries
 
 
 # Write text to file
 def write_to_file(filepath, text):
 
-    file = open(filepath, 'w')
+    file = open(filepath, "w")
     file.write(text)
     file.close()
 
@@ -73,23 +75,25 @@ def write_to_file(filepath, text):
 def get_filename_postfix(title):
 
     # Get title as lowercase words concatenated with underscores
-    title = re.sub('[^A-Za-z0-9 ]+', '', title.lower())
-    title = re.sub(' ', '_', title)
-    
-    return '{}.{}'.format(title, fileending)
+    title = re.sub("[^A-Za-z0-9 ]+", "", title.lower())
+    title = re.sub(" ", "_", title)
+
+    return "{}.{}".format(title, fileending)
 
 
 # Get HTML image snippet from the first image url in a text
 def get_image_snippet(text):
-    
+
     try:
-        image_url = re.search('(?P<image>https?://\S+(\.png|\.jpg|\.jpeg))', text, re.IGNORECASE).group('image')
+        image_url = re.search(
+            "(?P<image>https?://\S+(\.png|\.jpg|\.jpeg))", text, re.IGNORECASE
+        ).group("image")
         return '<img src="{}" alt="Image">\n\n'.format(image_url)
-    except:
-        return ''
+    except Exception:
+        return ""
 
 
-# Get HTML summary snippet from a HTML text 
+# Get HTML summary snippet from a HTML text
 def get_summary_snippet(text):
 
     try:
@@ -98,22 +102,24 @@ def get_summary_snippet(text):
         h.ignore_links = True
         h.ignore_images = True
         h.body_width = 0
-        summary = h.handle(text).split('\n\n')[0].strip()
-        return '<p><b>{}</b></p>\n\n'.format(summary)
-    except:
-        return ''
+        summary = h.handle(text).split("\n\n")[0].strip()
+        return "<p><b>{}</b></p>\n\n".format(summary)
+    except Exception:
+        return ""
 
 
 # Get article body either from web or its content
 def get_article_body(article, feed):
 
-    body = ''
+    body = ""
 
     # If scrape, get article with readability
-    if feed['scrape']:
+    if feed["scrape"]:
 
-        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.110 Safari/537.36'}
-        response = requests.get(article.link, headers = headers)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.110 Safari/537.36"
+        }
+        response = requests.get(article.link, headers=headers)
         doc = Document(response.text)
         body = doc.summary()
 
@@ -121,46 +127,58 @@ def get_article_body(article, feed):
     else:
 
         # Add all content to body
-        if hasattr(article, 'content'):
+        if hasattr(article, "content"):
             for c in article.content:
-                if c.type == 'text/html' or c.type == 'text/plain':
+                if c.type == "text/html" or c.type == "text/plain":
                     body += c.value
         # Use summary as fallback
-        elif hasattr(article, 'summary'):
+        elif hasattr(article, "summary"):
             body += article.summary
 
     # Replace relative links with absolute ones, using beautifulsoup
     try:
         splitted_url = urlsplit(article.link)
-    except:
-        splitted_url = urlsplit(feed['url'])
-        
-    soup = BeautifulSoup(body, features = 'lxml')
+    except Exception:
+        splitted_url = urlsplit(feed["url"])
 
-    for img in soup.find_all('img', src = True):
-        src = img.get('src')
+    soup = BeautifulSoup(body, features="lxml")
+
+    for img in soup.find_all("img", src=True):
+        src = img.get("src")
         splitted_src = urlsplit(src)
-        constructed_src = [splitted_src.scheme, splitted_src.netloc, splitted_src.path, splitted_src.query, splitted_src.fragment]
-        if constructed_src[0] == '':
+        constructed_src = [
+            splitted_src.scheme,
+            splitted_src.netloc,
+            splitted_src.path,
+            splitted_src.query,
+            splitted_src.fragment,
+        ]
+        if constructed_src[0] == "":
             constructed_src[0] = splitted_url.scheme
-        if constructed_src[1] == '':
+        if constructed_src[1] == "":
             constructed_src[1] = splitted_url.netloc
         new_src = urlunsplit(constructed_src)
-        if new_src.startswith('http'):
+        if new_src.startswith("http"):
             body = body.replace('"{}"'.format(src), '"{}"'.format(new_src), 1)
-        
-    for a in soup.find_all('a', href = True):
-        href = a.get('href')
+
+    for a in soup.find_all("a", href=True):
+        href = a.get("href")
         splitted_href = urlsplit(href)
-        constructed_href = [splitted_href.scheme, splitted_href.netloc, splitted_href.path, splitted_href.query, splitted_href.fragment]
-        if constructed_href[0] == '':
+        constructed_href = [
+            splitted_href.scheme,
+            splitted_href.netloc,
+            splitted_href.path,
+            splitted_href.query,
+            splitted_href.fragment,
+        ]
+        if constructed_href[0] == "":
             constructed_href[0] = splitted_url.scheme
-        if constructed_href[1] == '':
+        if constructed_href[1] == "":
             constructed_href[1] = splitted_url.netloc
         new_href = urlunsplit(constructed_href)
-        if new_href.startswith('http'):
+        if new_href.startswith("http"):
             body = body.replace('"{}"'.format(href), '"{}"'.format(new_href), 1)
-        
+
     return body
 
 
@@ -168,12 +186,17 @@ def get_article_body(article, feed):
 def postprocess(text):
 
     try:
-        processor = subprocess.Popen(postprocessor.split(' '), stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-        (output, err) = processor.communicate(input = text.encode())
+        processor = subprocess.Popen(
+            postprocessor.split(" "),
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        (output, err) = processor.communicate(input=text.encode())
         if err:
             raise Exception(err.decode().strip())
     except Exception as e:
-        error('    while postprocessing: {}'.format(e))
+        error("    while postprocessing: {}".format(e))
         sys.exit(1)
 
     return output.decode().strip()
@@ -187,25 +210,29 @@ def get_article(article, feed):
 
     # Construct head of article
     image = get_image_snippet(str(article))
-    if image == '':
+    if image == "":
         image = get_image_snippet(body)
     summary = get_summary_snippet(article.summary)
-    if summary == '':
+    if summary == "":
         summary = get_summary_snippet(body)
     try:
-        date = datetime.fromtimestamp(mktime(article.published_parsed)).strftime(datetime_format)
-    except:
+        date = datetime.fromtimestamp(mktime(article.published_parsed)).strftime(
+            datetime_format
+        )
+    except Exception:
         date = datetime.now().strftime(datetime_format)
     try:
         link = article.link
-    except:
-        splitted_url = urlsplit(feed['url'])
-        splitted_link = [splitted_url.scheme, splitted_url.netloc, '', '', '']
-        link = urlunsplit(splitted_link) 
-    head = '<h1>{}</h1>\n\n{}{}<p>{} - <a href={}>Link</a></p>'.format(article.title, image, summary, date, link)
+    except Exception:
+        splitted_url = urlsplit(feed["url"])
+        splitted_link = [splitted_url.scheme, splitted_url.netloc, "", "", ""]
+        link = urlunsplit(splitted_link)
+    head = "<h1>{}</h1>\n\n{}{}<p>{} - <a href={}>Link</a></p>".format(
+        article.title, image, summary, date, link
+    )
 
     # Postprocess article
-    article_text = postprocess('{}\n\n<hr>\n\n{}'.format(head, body)).strip()
+    article_text = postprocess("{}\n\n<hr>\n\n{}".format(head, body)).strip()
 
     return article_text
 
@@ -213,37 +240,39 @@ def get_article(article, feed):
 # Update feed
 def update_feed(feed):
 
-    log('  updating feed "{}"'.format(feed['name']))
+    log('  updating feed "{}"'.format(feed["name"]))
 
     # Set feedpaths
-    feedpath_new = os.path.join(base_directory, feed['category'], feed['name'], 'new')
-    feedpath_read = os.path.join(base_directory, feed['category'], feed['name'], 'read')
-    
+    feedpath_new = os.path.join(base_directory, feed["category"], feed["name"], "new")
+    feedpath_read = os.path.join(base_directory, feed["category"], feed["name"], "read")
+
     if not os.path.exists(feedpath_new):
         os.makedirs(feedpath_new)
-        
+
     if not os.path.exists(feedpath_read):
         os.makedirs(feedpath_read)
 
     # Get exisiting articles
-    existing_articles = os.listdir(feedpath_new) + os.listdir(feedpath_read) + os.listdir(lovedpath)
+    existing_articles = (
+        os.listdir(feedpath_new) + os.listdir(feedpath_read) + os.listdir(lovedpath)
+    )
 
     # Update articles
     articles = get_articles(feed)
-    threshold_date = datetime.now() - timedelta(days = max_age)
+    threshold_date = datetime.now() - timedelta(days=max_age)
 
     if len(articles) == 0:
-        error('no articles received from feed "{}"'.format(feed['name']))
-    
+        error('no articles received from feed "{}"'.format(feed["name"]))
+
     for a in articles:
-        
+
         try:
 
             # Set fallback if no parseable date found
             fallback = False
             try:
                 date = datetime.fromtimestamp(mktime(a.published_parsed))
-            except:
+            except Exception:
                 date = datetime.now()
                 fallback = True
 
@@ -259,9 +288,9 @@ def update_feed(feed):
                 if not filter:
 
                     # Construct filename
-                    filename_prefix = date.strftime('%Y%m%d%H%M')
+                    filename_prefix = date.strftime("%Y%m%d%H%M")
                     filename_postfix = get_filename_postfix(a.title)
-                    filename = '{}_{}'.format(filename_prefix, filename_postfix)
+                    filename = "{}_{}".format(filename_prefix, filename_postfix)
 
                     # Check if article exists
                     article_exists = False
@@ -278,26 +307,30 @@ def update_feed(feed):
                         log('    added article "{}"'.format(a.title))
 
         except Exception as e:
-            error('while parsing article "{}" from feed "{}": {}'.format(a.title, feed['name'], e))
+            error(
+                'while parsing article "{}" from feed "{}": {}'.format(
+                    a.title, feed["name"], e
+                )
+            )
 
 
 # Delete articles older than max_age
 def remove_old_articles():
 
-    threshold_date = datetime.now() - timedelta(days = max_age)
+    threshold_date = datetime.now() - timedelta(days=max_age)
     count = 0
-    
+
     for subdir, dirs, files in os.walk(base_directory):
 
         # Skip 'loved' directory
-        if not os.path.join(base_directory, 'loved') in subdir:
+        if not os.path.join(base_directory, "loved") in subdir:
             for file in files:
-                 date = datetime.strptime(file[:12], '%Y%m%d%H%M')
-                 if threshold_date > date:
-                     os.remove(os.path.join(subdir, file))
-                     count += 1
+                date = datetime.strptime(file[:12], "%Y%m%d%H%M")
+                if threshold_date > date:
+                    os.remove(os.path.join(subdir, file))
+                    count += 1
 
-    log('  removed {} articles'.format(count))
+    log("  removed {} articles".format(count))
 
 
 # Parse config file
@@ -307,15 +340,15 @@ def load_config(filepath):
 
     try:
         config = toml.load(filepath)
-        base_directory = config['base_directory']
-        max_age = config['max_age']
-        datetime_format = config['datetime_format']
-        postprocessor = config['postprocessor']
-        fileending = config['fileending']
-        filters = config['filters']
-        feeds = config['feed']
+        base_directory = config["base_directory"]
+        max_age = config["max_age"]
+        datetime_format = config["datetime_format"]
+        postprocessor = config["postprocessor"]
+        fileending = config["fileending"]
+        filters = config["filters"]
+        feeds = config["feed"]
     except Exception as e:
-        error('while parsing config: {}'.format(e))
+        error("while parsing config: {}".format(e))
         sys.exit(1)
 
 
@@ -325,7 +358,7 @@ def initialize():
     global lovedpath
 
     # Create 'loved' directory if not existent
-    lovedpath = os.path.join(base_directory, 'loved')
+    lovedpath = os.path.join(base_directory, "loved")
     if not os.path.exists(lovedpath):
         os.makedirs(lovedpath)
 
@@ -333,25 +366,34 @@ def initialize():
 # Update all feeds and remove old articles
 def crawl():
 
-    log('crawling feeds', True)
+    log("crawling feeds", True)
     for feed in feeds:
         update_feed(feed)
 
-    log('removing old articles', True)
+    log("removing old articles", True)
     remove_old_articles()
 
-'''
+
+"""
 Main
-'''
+"""
+
 
 def main():
 
     global verbose
 
     # Initialize parser
-    parser = argparse.ArgumentParser(description = 'Crawl RSS feeds and store articles as Markdown files.')
-    parser.add_argument('-v', '--verbose', action = 'store_true', help = 'verbose output')
-    parser.add_argument('-c', '--config', default = './config.toml', help = 'config file (default: ./config.toml)')
+    parser = argparse.ArgumentParser(
+        description="Crawl RSS feeds and store articles as Markdown files."
+    )
+    parser.add_argument("-v", "--verbose", action="store_true", help="verbose output")
+    parser.add_argument(
+        "-c",
+        "--config",
+        default="./config.toml",
+        help="config file (default: ./config.toml)",
+    )
 
     # Get args
     args = parser.parse_args()
@@ -365,5 +407,5 @@ def main():
     crawl()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
